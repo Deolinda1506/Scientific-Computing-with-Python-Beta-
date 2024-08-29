@@ -1,0 +1,77 @@
+class Category:
+    def __init__(self, name):
+        self.name = name
+        self.ledger = []
+
+    def deposit(self, amount, description=""):
+        self.ledger.append({'amount': amount, 'description': description})
+
+    def withdraw(self, amount, description=""):
+        if self.check_funds(amount):
+            self.ledger.append({'amount': -amount, 'description': description})
+            return True
+        return False
+
+    def get_balance(self):
+        return sum(item['amount'] for item in self.ledger)
+
+    def transfer(self, amount, category):
+        if self.check_funds(amount):
+            self.withdraw(amount, f"Transfer to {category.name}")
+            category.deposit(amount, f"Transfer from {self.name}")
+            return True
+        return False
+
+    def check_funds(self, amount):
+        return self.get_balance() >= amount
+
+    def __str__(self):
+        title = f"{self.name:*^30}"
+        ledger_lines = [
+            f"{item['description'][:23]:23}{item['amount']:>7.2f}"
+            for item in self.ledger
+        ]
+        total_line = f"Total: {self.get_balance():.2f}"
+        return "\n".join([title] + ledger_lines + [total_line])
+
+def create_spend_chart(categories):
+    # Calculate total withdrawals for each category
+    total_withdrawals = []
+    for category in categories:
+        total_withdrawn = sum(-item['amount'] for item in category.ledger if item['amount'] < 0)
+        total_withdrawals.append(total_withdrawn)
+
+    # Calculate the total amount withdrawn and the percentage for each category
+    total_spent = sum(total_withdrawals)
+    percentages = [int((withdrawn / total_spent) * 100) for withdrawn in total_withdrawals]
+
+    chart = "Percentage spent by category\n"
+
+    # Create the chart body with percentage labels and bars
+    for i in range(100, -1, -10):
+        chart += f"{i:>3}| "
+        for percentage in percentages:
+            if percentage >= i:
+                chart += "o  "
+            else:
+                chart += "   "
+        chart += "\n"
+
+    # Add the horizontal line
+    chart += "    -" + "---" * len(categories) + "\n"
+
+    # Get the longest category name length
+    max_length = max(len(category.name) for category in categories)
+
+    # Create the vertical labels for category names
+    for i in range(max_length):
+        chart += "     "
+        for category in categories:
+            if i < len(category.name):
+                chart += category.name[i] + "  "
+            else:
+                chart += "   "
+        chart += "\n"
+
+    return chart.rstrip("\n")
+
