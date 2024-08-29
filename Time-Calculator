@@ -48,8 +48,7 @@ def add_time(start, duration, day_of_week=None):
         final_time += " (next day)"
     elif days_later > 1:
         final_time += f" ({days_later} days later)"
-
-    return final_time
+return final_time
 
 
 
