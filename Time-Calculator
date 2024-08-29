@@ -1,0 +1,55 @@
+def add_time(start, duration, day_of_week=None):
+    # Days of the week to handle the day_of_week parameter
+    days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    
+    # Parse start time
+    start_hour_min, period = start.split()
+    start_hour, start_min = map(int, start_hour_min.split(':'))
+
+    # Convert start hour to 24-hour format
+    if period == "PM":
+        start_hour += 12
+    elif start_hour == 12:
+        start_hour = 0
+
+    # Parse duration time
+    duration_hour, duration_min = map(int, duration.split(':'))
+
+    # Calculate the new time in minutes
+    total_min = (start_hour * 60 + start_min) + (duration_hour * 60 + duration_min)
+
+    # Calculate the final hour and minutes
+    final_hour = (total_min // 60) % 24
+    final_min = total_min % 60
+
+    # Determine the number of days later
+    days_later = (total_min // 60) // 24
+
+    # Convert final hour back to 12-hour format
+    if final_hour >= 12:
+        period = "PM"
+        if final_hour > 12:
+            final_hour -= 12
+    else:
+        period = "AM"
+        if final_hour == 0:
+            final_hour = 12
+
+    # Format the final time string
+    final_time = f"{final_hour}:{final_min:02d} {period}"
+
+    # Determine the day of the week if provided
+    if day_of_week:
+        day_index = (days_of_week.index(day_of_week.capitalize()) + days_later) % 7
+        final_time += f", {days_of_week[day_index]}"
+
+    # Add days later information if necessary
+    if days_later == 1:
+        final_time += " (next day)"
+    elif days_later > 1:
+        final_time += f" ({days_later} days later)"
+
+    return final_time
+
+
+
